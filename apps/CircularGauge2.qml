@@ -9,12 +9,13 @@ Item {
     property real maximumValue: 20
     property real value: 8
     property real labelStepSize: 2
+    property int minorTickmarkCount: 4
 
     property int labelCount: ((maximumValue - minimumValue) / labelStepSize) + 1
 
     property int initDeg: 125
     property int totalDeg: 320
-    property real rad_interval: (totalDeg * Math.PI / 180) / labelCount
+    property real rad_interval: (totalDeg * Math.PI / 180) / (labelCount)
 
     Rectangle {
         anchors.fill: parent
@@ -46,6 +47,7 @@ Item {
                 // var angle = ((i / labelCount) * 275 - 227) * Math.PI / 180
                 // var angle = ((i / labelCount) * rad_interval - (145 * Math.PI / 180))
                 var angle = (i * rad_interval + (initDeg * Math.PI / 180))
+
                 var x1 = centerX + Math.cos(angle) * radius
                 var y1 = centerY + Math.sin(angle) * radius
                 var x2 = centerX + Math.cos(angle) * (radius - 15)
@@ -53,7 +55,6 @@ Item {
                 var textX = centerX + Math.cos(angle) * (radius - 30)
                 var textY = centerY + Math.sin(angle) * (radius - 30)
 
-                // Draw tick marks
                 ctx.beginPath()
                 ctx.moveTo(x1, y1)
                 ctx.lineTo(x2, y2)
@@ -65,6 +66,24 @@ Item {
                 ctx.fillStyle = "red"
                 ctx.fillText(i * labelStepSize, textX, textY)
                 console.log(i, i * labelStepSize, i * (totalDeg / labelCount) + initDeg)
+
+                for (var j = 1; j <= minorTickmarkCount; ++j) {
+                    if (i == labelCount - 1) {
+                        break
+                    }
+                    var minorAngle = ((j * rad_interval / (minorTickmarkCount + 1)) + angle)
+                    //console.log("MinorAngle: ", minorAngle)
+                    var mx1 = centerX + Math.cos(minorAngle) * radius
+                    var my1 = centerY + Math.sin(minorAngle) * radius
+                    var mx2 = centerX + Math.cos(minorAngle) * (radius - 7)
+                    var my2 = centerY + Math.sin(minorAngle) * (radius - 7)
+                    ctx.beginPath()
+                    ctx.moveTo(mx1, my1)
+                    ctx.lineTo(mx2, my2)
+                    ctx.strokeStyle = "black"
+                    ctx.lineWidth = 2
+                    ctx.stroke()
+                }
             }
         }
     }
