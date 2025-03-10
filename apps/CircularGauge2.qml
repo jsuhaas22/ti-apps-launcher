@@ -5,11 +5,11 @@ Item {
     width: 300
     height: 300
 
-    property real minimumValue: 0
-    property real maximumValue: 20
-    property real value: 8
-    property real labelStepSize: 2
-    property int minorTickmarkCount: 4
+    property real minimumValue
+    property real maximumValue
+    property real value
+    property real labelStepSize
+    property int minorTickmarkCount
 
     property int labelCount: ((maximumValue - minimumValue) / labelStepSize) + 1
 
