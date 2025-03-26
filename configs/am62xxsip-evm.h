@@ -10,7 +10,7 @@ struct device_info device_info_am62sip = {
         app_industrial_control_minimal,
         app_live_camera,
         app_settings,
-        app_terminal,
+//        app_terminal,
     },
     .include_powerbuttons = {
         action_shutdown,
