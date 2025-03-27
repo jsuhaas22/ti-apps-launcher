@@ -3,6 +3,8 @@
 #include <sstream>
 
 #include <QDebug>
+#include <QQuickItem>
+#include <gst/gst.h>
 
 using namespace std;
 
@@ -132,3 +134,33 @@ int LiveCamera::liveCamera_get_count() {
     return LiveCamera_count;
 }
 
+void LiveCamera::startStream(QObject *object)
+{
+	QString gst_pipeline = liveCamera_gst_pipeline();
+	GError *error = NULL;
+	pipeline = gst_parse_launch(gst_pipeline.toLatin1().data(), &error);
+	if (error) {
+		g_printerr("Failed to parse launch: %s\n", error->message);
+		g_error_free(error);
+		return;
+	}
+
+	GstElement *sink = gst_bin_get_by_name(GST_BIN(pipeline), "sink");
+	g_assert(sink);
+	QQuickItem *streamItem = qobject_cast<QQuickItem*>(object);
+	g_assert(streamItem);
+	g_object_set(sink, "widget", streamItem, NULL);
+	qDebug() << "Starting stream";
+	gst_element_set_state(pipeline, GST_STATE_PLAYING);
+}
+
+void LiveCamera::stopStream()
+{
+	if (pipeline) {
+		qDebug() << "Stopping camera stream";
+		gst_element_set_state(pipeline, GST_STATE_NULL);
+		qDebug() << "Removing pipeline";
+		gst_object_unref(pipeline);
+		pipeline = NULL;
+	}
+}
