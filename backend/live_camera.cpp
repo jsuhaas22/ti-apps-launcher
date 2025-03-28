@@ -2,6 +2,13 @@
 
 #include <sstream>
 
+#include <gst/gst.h>
+#include <gst/app/gstappsink.h>
+
+#include <QTimer>
+#include <QVideoSink>
+#include <QVideoFrame>
+#include <QImage>
 #include <QDebug>
 
 using namespace std;
@@ -117,7 +124,7 @@ QString LiveCamera::liveCamera_gst_pipeline() {
     gst_pipeline.append(" ! image/jpeg, width=1280, height=720 ! jpegdec");
     #endif
     gst_pipeline.append(" ! videoconvert");
-    gst_pipeline.append(" ! qtvideosink");
+    gst_pipeline.append(" ! appsink");
     qDebug() << gst_pipeline;
     return gst_pipeline;
 }
@@ -132,3 +139,63 @@ int LiveCamera::liveCamera_get_count() {
     return LiveCamera_count;
 }
 
+void LiveCamera::startStream()
+{
+	QString gst_pipeline = liveCamera_gst_pipeline();
+	GError *error = NULL;
+	m_pipeline = gst_parse_launch(gst_pipeline.toLatin1().data(), &error);
+	if (error) {
+		g_printerr("Failed to parse launch: %s\n", error->message);
+		g_error_free(error);
+		return;
+	}
+
+	GstElement *appsink = gst_bin_get_by_name(GST_BIN(m_pipeline), "sink");
+    g_object_set(G_OBJECT(appsink), "emit-signals", TRUE, nullptr);
+    g_signal_connect(appsink, "new-sample", G_CALLBACK(onNewSample), this);
+    gst_object_unref(appsink);
+
+	qDebug() << "Starting stream";
+	gst_element_set_state(m_pipeline, GST_STATE_PLAYING);
+}
+
+void LiveCamera::stopStream()
+{
+	if (m_pipeline) {
+		qDebug() << "Stopping camera stream";
+		gst_element_set_state(m_pipeline, GST_STATE_NULL);
+		qDebug() << "Removing pipeline";
+		gst_object_unref(m_pipeline);
+		m_pipeline = NULL;
+	}
+}
+
+QVideoSink* LiveCamera::videoSink()
+{
+	return m_videoSink;
+}
+
+static GstFlowReturn onNewSample(GstAppSink *appsink, gpointer user_data) {
+	CameraCapture *self = static_cast<CameraCapture *>(user_data);
+    GstSample *sample = gst_app_sink_pull_sample(appsink);
+    if (!sample) return GST_FLOW_OK;
+
+    GstBuffer *buffer = gst_sample_get_buffer(sample);
+    GstMapInfo map;
+    if (!gst_buffer_map(buffer, &map, GST_MAP_READ)) {
+		gst_sample_unref(sample);
+		return GST_FLOW_OK;
+	}
+
+    int width = 640;
+    int height = 480;
+    QImage img(map.data, width, height, QImage::Format_RGB888);
+    QVideoFrame frame(img);
+    if (self->m_videoSink) {
+		self->m_videoSink->setVideoFrame(frame);
+    }
+
+    gst_buffer_unmap(buffer, &map);
+    gst_sample_unref(sample);
+    return GST_FLOW_OK;
+}

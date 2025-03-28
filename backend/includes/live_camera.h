@@ -1,6 +1,14 @@
 #include <map>
 #include <string>
 
+#include <gst/gst.h>
+#include <gst/app/gstappsink.h>
+
+#include <QTimer>
+#include <QVideoSink>
+#include <QVideoFrame>
+#include <QImage>
+#include <QDebug>
 #include <QObject>
 #include <QStringListModel>
 #include <QString>
@@ -15,6 +23,9 @@ private:
 
     std::string replaceAll(std::string str, const std::string &remove, const std::string &insert);
     std::string trimString(std::string str);
+
+	QVideoSink *m_videoSink;
+	GstElement *m_pipeline;
 
 public:
 
@@ -32,6 +43,12 @@ public:
     Q_INVOKABLE QString liveCamera_gst_pipeline();
     Q_INVOKABLE int liveCamera_get_count();
     Q_INVOKABLE QString liveCamera_get_camera_name(int index);
+
+	Q_INVOKABLE startStream();
+	Q_INVOKABLE stopStream();
+	Q_INVOKABLE videoSink();
+
+	static GstFlowReturn onNewSample(GstAppSink *appsink, gpointer user_data);
 
 signals:
 

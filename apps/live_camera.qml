@@ -3,6 +3,7 @@ import QtQuick 2.14
 import QtMultimedia
 import QtQuick.Controls 2.1
 import QtQuick.Layouts 1.3
+import org.freedesktop.gstreamer.Qt6GLVideoItem 1.0
 
 Rectangle {
     id: camerarecorder
@@ -14,6 +15,7 @@ Rectangle {
     MediaPlayer {
         id: mediaplayer
         autoPlay: false
+		source: camera_feed
     }
 
     Text {
@@ -26,8 +28,8 @@ Rectangle {
 
     VideoOutput {
         id: camera_feed
-        anchors.fill: parent
-        source: mediaplayer
+       anchors.fill: parent
+	   source: live_camera.videoSink()
 
         RowLayout {
             anchors.bottom: parent.bottom
@@ -44,9 +46,8 @@ Rectangle {
                     text: live_camera.liveCamera_get_camera_name(index)
                     onClicked: {
                         live_camera.liveCamera_update_gst_pipeline(text)
-                        mediaplayer.stop()
-                        mediaplayer.source = live_camera.liveCamera_gst_pipeline()
-                        mediaplayer.play()
+						live_camera.stopStream()
+						live_camera.startStream()
                     }
                 }
             }
@@ -62,9 +63,8 @@ Rectangle {
             camera_feed.visible = true
 
             live_camera.liveCamera_update_gst_pipeline(camera_buttons.itemAt(0).text)
-            mediaplayer.stop()
-            mediaplayer.source = live_camera.liveCamera_gst_pipeline()
-            mediaplayer.play()
+			live_camera.stopStream()
+			live_camera.startStream()
         }
     }
 }
