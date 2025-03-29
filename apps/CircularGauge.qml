@@ -34,6 +34,8 @@ Item {
         return Math.max((((Math.min(value, maximumValue) - minimumValue) / labelStepSize) * intervalDeg + initDeg), initDeg);
     }
 
+    property bool initialized: false
+
     Rectangle {
         anchors.fill: parent
         color: "#f0f0f0"  /* light-grey */
@@ -47,6 +49,7 @@ Item {
         id: speedometerCanvas
         anchors.fill: parent
         onPaint: {
+        if (!initialized) {
             var ctx = getContext("2d")
             ctx.clearRect(0, 0, width, height)
 
@@ -98,6 +101,8 @@ Item {
                     ctx.lineWidth = 2
                     ctx.stroke()
                 }
+            }
+            initialized = true
             }
         }
     }
