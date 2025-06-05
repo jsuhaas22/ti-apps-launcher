@@ -10,14 +10,14 @@ Rectangle {
     color: "#000000"
     id: window
 
-/*    RadialGradient {
+    RadialGradient {
         anchors.fill: parent
         gradient: Gradient {
             GradientStop { position: 0.0; color: "black" }
             GradientStop { position: 0.5; color: "black" }
             GradientStop { position: 0.8; color: "#3498DB" }
         }
-    } */
+    }
 
     property int gear: 0
     property bool halt: true

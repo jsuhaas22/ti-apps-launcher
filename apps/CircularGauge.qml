@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
 
 Item {
     width: 300
@@ -35,11 +36,13 @@ Item {
     }
 
     Rectangle {
+        id: outerCircle
         anchors.fill: parent
         color: "#f0f0f0"  /* light-grey */
         radius: width / 2
         border.color: "black"
         border.width: 3
+        opacity: 0.0
     }
 
     /* CircularGauge tickmarks and labels */
@@ -71,7 +74,7 @@ Item {
                 ctx.beginPath()
                 ctx.moveTo(x1, y1)
                 ctx.lineTo(x2, y2)
-                ctx.strokeStyle = "black"
+                ctx.strokeStyle = "white"
                 ctx.lineWidth = 2
                 ctx.stroke()
 
@@ -94,7 +97,7 @@ Item {
                     ctx.beginPath()
                     ctx.moveTo(mx1, my1)
                     ctx.lineTo(mx2, my2)
-                    ctx.strokeStyle = "black"
+                    ctx.strokeStyle = "white"
                     ctx.lineWidth = 2
                     ctx.stroke()
                 }
@@ -107,7 +110,7 @@ Item {
         width: 4
         height: parent.width * 0.35
         radius: 2
-        color: "red"
+        color: "#F1C40F"
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.verticalCenter // Ensures it extends only upwards
         transformOrigin: Item.Bottom
@@ -118,10 +121,32 @@ Item {
 
     /* Needle Origin */
     Rectangle {
-        width: 12
-        height: 12
-        color: "black"
-        radius: 6
+        id: needleOrigin
+        width: showLabel ? outerCircle.width / 4 : 12
+        height: showLabel ? outerCircle.height / 4 : 12
+        color: "#e5e5e5"
+        radius: showLabel ? outerCircle.radius / 4 : 6
         anchors.centerIn: parent
+
+        ColumnLayout {
+            anchors.centerIn: parent
+            spacing: 4
+            visible: showLabel
+
+            Label {
+                text: Math.floor(value)
+                font.pointSize: 28
+                font.bold: true
+                color: "black"
+                Layout.alignment: Qt.AlignHCenter
+            }
+
+            Label {
+                text: "Kmph"
+                font.pointSize: 10
+                color: "black"
+                Layout.alignment: Qt.AlignHCenter
+            }
+        }
     }
 }
