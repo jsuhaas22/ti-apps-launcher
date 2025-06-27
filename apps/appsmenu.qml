@@ -1,6 +1,6 @@
 import QtQml 2.1
 import QtQuick 2.14
-import QtMultimedia
+//import QtMultimedia
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.3
 
@@ -23,10 +23,10 @@ Rectangle {
         border.width: 3
         radius: 10
 
-        SoundEffect {
-            id: buttonSound
-            source: "/audios/button_click.wav"
-        }
+        //SoundEffect {
+            //id: buttonSound
+            //source: "/audios/button_click.wav"
+        //}
         ScrollView {
             anchors.fill: parent
             anchors.topMargin: parent.height * 0.05
@@ -96,7 +96,7 @@ Rectangle {
                         }
 
                         onClicked: {
-                            buttonSound.play()
+                            //buttonSound.play()
                             leftSubMenu.next_source = appsmenu.button_getqml(index)
                             if (leftSubMenu.next_source !== leftSubMenu.prev_source) {
                                 mainimg.visible = false;
